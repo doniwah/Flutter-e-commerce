@@ -17,20 +17,19 @@ class ApiService {
       Map<String, dynamic> userData) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/register'),
+        Uri.parse('http://192.168.100.9:3000/register'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(userData),
       );
 
-      final responseData = jsonDecode(response.body);
-
       if (response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
         return {'success': true, 'message': responseData['message']};
       } else {
-        return {'success': false, 'message': responseData['error']};
+        return {'success': false, 'message': 'Gagal mendaftarkan user'};
       }
     } catch (e) {
-      return {'success': false, 'message': 'An error occurred: $e'};
+      return {'success': false, 'message': 'Terjadi kesalahan: $e'};
     }
   }
 
