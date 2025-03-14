@@ -77,7 +77,7 @@ class ProfileScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: const [
                           Text(
-                            'Coding with T',
+                            'Doni Wahyudi',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -86,7 +86,7 @@ class ProfileScreen extends StatelessWidget {
                           ),
                           SizedBox(height: 4),
                           Text(
-                            'support@codingwithT.com',
+                            'whyddoni@ggmail.com',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.white70,

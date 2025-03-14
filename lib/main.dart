@@ -1,9 +1,55 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages
+import 'package:http/http.dart' as http;
 
 import 'HomeScreen.dart';
 import 'detail_product.dart';
 
-void main() {
+class ApiService {
+  static const String baseUrl =
+      'http://10.0.2.2:3000'; // Use this for Android emulator
+  // static const String baseUrl = 'http://localhost:3000'; // Use this for iOS simulator
+
+  // Register user
+  static Future<Map<String, dynamic>> registerUser(
+      Map<String, dynamic> userData) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/register'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(userData),
+    );
+
+    final responseData = jsonDecode(response.body);
+
+    if (response.statusCode == 201) {
+      return {'success': true, 'message': responseData['message']};
+    } else {
+      return {'success': false, 'message': responseData['error']};
+    }
+  }
+
+  // Login user
+  static Future<Map<String, dynamic>> loginUser(
+      String email, String password) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email, 'password': password}),
+    );
+
+    final responseData = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return {'success': true, 'user': responseData['user']};
+    } else {
+      return {'success': false, 'message': responseData['error']};
+    }
+  }
+}
+
+void main() async {
   runApp(const MyApp());
 }
 
@@ -19,7 +65,6 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         fontFamily: 'Roboto',
       ),
-      // Mulai dari halaman login
       initialRoute: '/login',
       routes: {
         '/login': (context) => const LoginScreen(),
