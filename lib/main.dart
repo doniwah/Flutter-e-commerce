@@ -9,42 +9,50 @@ import 'detail_product.dart';
 
 class ApiService {
   static const String baseUrl =
-      'http://10.0.2.2:3000'; // Use this for Android emulator
+      'http://localhost:3000'; // Use this for Android emulator
   // static const String baseUrl = 'http://localhost:3000'; // Use this for iOS simulator
 
   // Register user
   static Future<Map<String, dynamic>> registerUser(
       Map<String, dynamic> userData) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/register'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(userData),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/register'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(userData),
+      );
 
-    final responseData = jsonDecode(response.body);
+      final responseData = jsonDecode(response.body);
 
-    if (response.statusCode == 201) {
-      return {'success': true, 'message': responseData['message']};
-    } else {
-      return {'success': false, 'message': responseData['error']};
+      if (response.statusCode == 201) {
+        return {'success': true, 'message': responseData['message']};
+      } else {
+        return {'success': false, 'message': responseData['error']};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'An error occurred: $e'};
     }
   }
 
   // Login user
   static Future<Map<String, dynamic>> loginUser(
       String email, String password) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/login'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'password': password}),
+      );
 
-    final responseData = jsonDecode(response.body);
+      final responseData = jsonDecode(response.body);
 
-    if (response.statusCode == 200) {
-      return {'success': true, 'user': responseData['user']};
-    } else {
-      return {'success': false, 'message': responseData['error']};
+      if (response.statusCode == 200) {
+        return {'success': true, 'user': responseData['user']};
+      } else {
+        return {'success': false, 'message': responseData['error']};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'An error occurred: $e'};
     }
   }
 }
@@ -86,7 +94,31 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
+
   bool _rememberMe = false;
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  Future<void> _login() async {
+    final email = _emailController.text;
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
+
+    final response = await ApiService.loginUser(email, password);
+
+    if (response['success']) {
+      Navigator.pushNamed(context, '/home');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(response['message'])),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,6 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     border: Border.all(color: Colors.grey.shade300),
                   ),
                   child: TextFormField(
+                    controller: _emailController,
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: 'E-Mail',
@@ -167,6 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     border: Border.all(color: Colors.grey.shade300),
                   ),
                   child: TextFormField(
+                    controller: _passwordController,
                     obscureText: _obscurePassword,
                     decoration: InputDecoration(
                       border: InputBorder.none,
@@ -241,9 +275,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/home');
-                    },
+                    onPressed: _login,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue[600],
                       foregroundColor: Colors.white,
@@ -377,6 +409,36 @@ class RegistrationScreen extends StatefulWidget {
 class _RegistrationScreenState extends State<RegistrationScreen> {
   bool _obscurePassword = true;
   bool _agreeToTerms = false;
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  Future<void> _register() async {
+    final userData = {
+      'firstName': _firstNameController.text,
+      'lastName': _lastNameController.text,
+      'username': _usernameController.text,
+      'email': _emailController.text,
+      'phone': _phoneController.text,
+      'password': _passwordController.text,
+    };
+
+    final response = await ApiService.registerUser(userData);
+
+    if (response['success']) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(response['message'])),
+      );
+      Navigator.pop(context); // Kembali ke halaman login
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(response['message'])),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -388,7 +450,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            // Kembali ke halaman login ketika tombol back ditekan
             Navigator.pop(context);
           },
         ),
@@ -418,6 +479,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     // First Name
                     Expanded(
                       child: _buildInputField(
+                        controller: _firstNameController,
                         hint: 'First Name',
                         icon: Icons.person_outline,
                       ),
@@ -426,6 +488,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     // Last Name
                     Expanded(
                       child: _buildInputField(
+                        controller: _lastNameController,
                         hint: 'Last Name',
                         icon: Icons.person_outline,
                       ),
@@ -436,6 +499,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                 // Username
                 _buildInputField(
+                  controller: _usernameController,
                   hint: 'Username',
                   icon: Icons.person_outline,
                 ),
@@ -443,6 +507,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                 // Email
                 _buildInputField(
+                  controller: _emailController,
                   hint: 'E-Mail',
                   icon: Icons.email_outlined,
                 ),
@@ -450,6 +515,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                 // Phone Number
                 _buildInputField(
+                  controller: _phoneController,
                   hint: 'Phone Number',
                   icon: Icons.phone_outlined,
                 ),
@@ -463,6 +529,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     border: Border.all(color: Colors.grey.shade300),
                   ),
                   child: TextFormField(
+                    controller: _passwordController,
                     obscureText: _obscurePassword,
                     decoration: InputDecoration(
                       border: InputBorder.none,
@@ -543,10 +610,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Setelah register berhasil, kembali ke halaman login
-                      Navigator.pop(context);
-                    },
+                    onPressed: _register,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue[600],
                       foregroundColor: Colors.white,
@@ -604,6 +668,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   Widget _buildInputField({
+    required TextEditingController controller,
     required String hint,
     required IconData icon,
   }) {
@@ -614,6 +679,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         border: Border.all(color: Colors.grey.shade300),
       ),
       child: TextFormField(
+        controller: controller,
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: hint,
