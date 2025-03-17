@@ -11,7 +11,7 @@ app.use(express.json());
 // Izinkan request dari domain lain
 app.use(
   cors({
-    origin: "http://localhost:5500", // Ganti dengan URL Flutter di Chrome
+    origin: "*", // Ganti dengan URL Flutter di Chrome
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
@@ -21,7 +21,7 @@ const db = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "", // Password MySQL (kosong untuk Laragon default)
-  database: "db_cart", // Nama database yang dibuat di Laragon
+  database: "ecomerce", // Nama database yang dibuat di Laragon
 });
 
 // Periksa koneksi database
@@ -43,7 +43,7 @@ app.post("/register", (req, res) => {
 
   // Query untuk menambahkan user baru
   const query = `
-    INSERT INTO users (first_name, last_name, username, email, phone, password)
+    INSERT INTO users (firstName, lastName, username, email, phone, password)
     VALUES (?, ?, ?, ?, ?, ?)
   `;
   const values = [firstName, lastName, username, email, phone, password];

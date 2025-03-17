@@ -12,7 +12,7 @@ import 'detail_product.dart';
 
 class ApiService {
   static const String baseUrl =
-      'http://localhost:3000'; // Use this for Android emulator
+      'http://192.168.1.17:3000'; // Use this for Android emulator
   // static const String baseUrl = 'http://localhost:3000'; // Use this for iOS simulator
 
   // Register user
@@ -20,7 +20,7 @@ class ApiService {
       Map<String, dynamic> userData) async {
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.1.6:3000/register'),
+        Uri.parse('$baseUrl/register'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(userData),
       );
